@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User } from 'src/schemas/User.schema';
 import { CreateUserDto } from './dto/CreateUser.dto';
 import { JwtService } from '@nestjs/jwt';
+import { hash } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -12,9 +13,13 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
 
-  singup(createUserDto: CreateUserDto) {
-    const newUser = new this.userModel(createUserDto);
-    newUser.save();
+  async singup(createUserDto: CreateUserDto) {
+    const { password } = createUserDto;
+    const plainToHash = await hash(password, 10);
+
+    createUserDto = { ...createUserDto, password: plainToHash };
+    const newUser = await this.userModel.create(createUserDto);
+
     return this.signToken(newUser.username, newUser.email);
   }
 
