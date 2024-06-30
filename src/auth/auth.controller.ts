@@ -7,14 +7,21 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/CreateUser.dto';
+import { UserDto } from './dto/User.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post()
+  @Post('register')
   @UsePipes(new ValidationPipe())
-  signup(@Body() createUserDto: CreateUserDto) {
-    return this.authService.singup(createUserDto);
+  register(@Body() createUserDto: CreateUserDto) {
+    return this.authService.register(createUserDto);
+  }
+
+  @Post('login')
+  @UsePipes(new ValidationPipe())
+  login(@Body() userDto: UserDto) {
+    return this.authService.login(userDto);
   }
 }

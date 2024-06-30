@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/schemas/User.schema';
 import { CreateUserDto } from './dto/CreateUser.dto';
 import { JwtService } from '@nestjs/jwt';
-import { hash } from 'bcrypt';
+import { hash, compare } from 'bcrypt';
+import { UserDto } from './dto/User.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,7 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
 
-  async singup(createUserDto: CreateUserDto) {
+  async register(createUserDto: CreateUserDto) {
     const { password } = createUserDto;
     const plainToHash = await hash(password, 10);
 
@@ -21,6 +22,24 @@ export class AuthService {
     const newUser = await this.userModel.create(createUserDto);
 
     return this.signToken(newUser.username, newUser.email);
+  }
+
+  async login(userDto: UserDto) {
+    const { email, password } = userDto;
+
+    // find the user by email
+    const user = await this.userModel.findOne({ email });
+
+    // if user does not exist throw exception
+    if (!user) throw new ForbiddenException('Credentials incorrect');
+
+    // compare password
+    const checkPassword = await compare(password, user.password);
+
+    // if password incorrect throw exception
+    if (!checkPassword) throw new ForbiddenException('Credentials incorrect');
+
+    return this.signToken(user.username, user.email);
   }
 
   async signToken(
