@@ -6,6 +6,7 @@ import { CreateUserDto } from './dto/CreateUser.dto';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
 import { UserDto } from './dto/User.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +25,7 @@ export class AuthService {
     return this.signToken(newUser.username, newUser.email);
   }
 
-  async login(userDto: UserDto) {
+  async login(userDto: UserDto, res: Response) {
     const { email, password } = userDto;
 
     // find the user by email
@@ -39,7 +40,13 @@ export class AuthService {
     // if password incorrect throw exception
     if (!checkPassword) throw new ForbiddenException('Credentials incorrect');
 
-    return this.signToken(user.username, user.email);
+    const { access_token } = await this.signToken(user.username, user.email);
+
+    res.cookie('jwt', access_token, { httpOnly: true });
+
+    return {
+      message: 'success',
+    };
   }
 
   async signToken(

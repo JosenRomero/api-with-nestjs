@@ -2,12 +2,14 @@ import {
   Body,
   Controller,
   Post,
+  Res,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/CreateUser.dto';
 import { UserDto } from './dto/User.dto';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -21,7 +23,7 @@ export class AuthController {
 
   @Post('login')
   @UsePipes(new ValidationPipe())
-  login(@Body() userDto: UserDto) {
-    return this.authService.login(userDto);
+  login(@Body() userDto: UserDto, @Res({ passthrough: true }) res: Response) {
+    return this.authService.login(userDto, res);
   }
 }
