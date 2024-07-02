@@ -26,4 +26,9 @@ export class AuthController {
   login(@Body() userDto: UserDto, @Res({ passthrough: true }) res: Response) {
     return this.authService.login(userDto, res);
   }
+
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    return this.authService.logout(res);
+  }
 }

@@ -49,6 +49,14 @@ export class AuthService {
     };
   }
 
+  logout(res: Response) {
+    res.clearCookie('jwt');
+
+    return {
+      message: 'success',
+    };
+  }
+
   async signToken(
     username: string,
     email: string,
