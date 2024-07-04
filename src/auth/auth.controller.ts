@@ -17,8 +17,11 @@ export class AuthController {
 
   @Post('register')
   @UsePipes(new ValidationPipe())
-  register(@Body() createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
+  register(
+    @Body() createUserDto: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.authService.register(createUserDto, res);
   }
 
   @Post('login')

@@ -15,14 +15,23 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
 
-  async register(createUserDto: CreateUserDto) {
+  async register(createUserDto: CreateUserDto, res: Response) {
     const { password } = createUserDto;
     const plainToHash = await hash(password, 10);
 
     createUserDto = { ...createUserDto, password: plainToHash };
     const newUser = await this.userModel.create(createUserDto);
 
-    return this.signToken(newUser.username, newUser.email);
+    const { access_token } = await this.signToken(
+      newUser.username,
+      newUser.email,
+    );
+
+    res.cookie('jwt', access_token, { httpOnly: true });
+
+    return {
+      message: 'success',
+    };
   }
 
   async login(userDto: UserDto, res: Response) {
