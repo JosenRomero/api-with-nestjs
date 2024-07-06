@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/schemas/User.schema';
@@ -16,46 +21,58 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto, res: Response) {
-    const { password } = createUserDto;
-    const plainToHash = await hash(password, 10);
+    try {
+      const { password } = createUserDto;
+      const plainToHash = await hash(password, 10);
 
-    createUserDto = { ...createUserDto, password: plainToHash };
-    const newUser = await this.userModel.create(createUserDto);
+      createUserDto = { ...createUserDto, password: plainToHash };
+      const newUser = await this.userModel.create(createUserDto);
 
-    const { access_token } = await this.signToken(
-      newUser.username,
-      newUser.email,
-    );
+      const { access_token } = await this.signToken(
+        newUser.username,
+        newUser.email,
+      );
 
-    res.cookie('jwt', access_token, { httpOnly: true });
+      res.cookie('jwt', access_token, { httpOnly: true });
 
-    return {
-      message: 'success',
-    };
+      return {
+        message: 'success',
+      };
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new BadRequestException('User already exists');
+      } else {
+        throw new InternalServerErrorException('Something went wrong');
+      }
+    }
   }
 
   async login(userDto: UserDto, res: Response) {
-    const { email, password } = userDto;
+    try {
+      const { email, password } = userDto;
 
-    // find the user by email
-    const user = await this.userModel.findOne({ email });
+      // find the user by email
+      const user = await this.userModel.findOne({ email });
 
-    // if user does not exist throw exception
-    if (!user) throw new ForbiddenException('Credentials incorrect');
+      // if user does not exist throw exception
+      if (!user) throw new ForbiddenException('Credentials incorrect');
 
-    // compare password
-    const checkPassword = await compare(password, user.password);
+      // compare password
+      const checkPassword = await compare(password, user.password);
 
-    // if password incorrect throw exception
-    if (!checkPassword) throw new ForbiddenException('Credentials incorrect');
+      // if password incorrect throw exception
+      if (!checkPassword) throw new ForbiddenException('Credentials incorrect');
 
-    const { access_token } = await this.signToken(user.username, user.email);
+      const { access_token } = await this.signToken(user.username, user.email);
 
-    res.cookie('jwt', access_token, { httpOnly: true });
+      res.cookie('jwt', access_token, { httpOnly: true });
 
-    return {
-      message: 'success',
-    };
+      return {
+        message: 'success',
+      };
+    } catch (error) {
+      throw new InternalServerErrorException('Something went wrong');
+    }
   }
 
   logout(res: Response) {
