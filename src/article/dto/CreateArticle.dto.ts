@@ -2,16 +2,11 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
-  IsMongoId,
   IsNotEmpty,
   IsString,
 } from 'class-validator';
 
 export class CreateArticleDto {
-  @IsNotEmpty()
-  @IsMongoId()
-  user: string;
-
   @IsNotEmpty()
   @IsString()
   description: string;
