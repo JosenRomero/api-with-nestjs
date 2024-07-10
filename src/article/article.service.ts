@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -33,6 +32,21 @@ export class ArticleService {
     }
   }
 
+  async getAllArticles(req: Request) {
+    try {
+      const { id } = req.user as User & { id: string };
+
+      const isUserId = mongoose.Types.ObjectId.isValid(id);
+      if (!isUserId) throw new BadRequestException('Invalid ID');
+
+      const articles = await this.articleModel.find({ user: id });
+
+      return articles;
+    } catch (error) {
+      new CustomError(error);
+    }
+  }
+
   async createArticle(createArticleDto: CreateArticleDto, req: Request) {
     try {
       const { id } = req.user as User & { id: string };
@@ -47,7 +61,7 @@ export class ArticleService {
 
       return newArticle;
     } catch (error) {
-      throw new InternalServerErrorException('Something went wrong');
+      new CustomError(error);
     }
   }
 }

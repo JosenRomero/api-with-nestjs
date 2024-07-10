@@ -27,7 +27,9 @@ export class ArticleController {
   }
 
   @Get()
-  getAllArticles() {}
+  getAllArticles(@Req() req: Request) {
+    return this.articleService.getAllArticles(req);
+  }
 
   @Post()
   @UsePipes(new ValidationPipe())
