@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   Req,
@@ -21,7 +22,9 @@ export class ArticleController {
   constructor(private articleService: ArticleService) {}
 
   @Get(':id')
-  getArticle() {}
+  getArticle(@Param('id') id: string) {
+    return this.articleService.getArticle(id);
+  }
 
   @Get()
   getAllArticles() {}
