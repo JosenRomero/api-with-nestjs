@@ -41,7 +41,9 @@ export class ArticleController {
   }
 
   @Delete(':id')
-  deleteArticle() {}
+  deleteArticle(@Param('id') id: string) {
+    return this.articleService.deleteArticle(id);
+  }
 
   @Put(':id')
   updateArticle() {}

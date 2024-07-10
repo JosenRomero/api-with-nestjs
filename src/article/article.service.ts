@@ -64,4 +64,23 @@ export class ArticleService {
       new CustomError(error);
     }
   }
+
+  async deleteArticle(articleId: string) {
+    try {
+      const isArticleId = mongoose.Types.ObjectId.isValid(articleId);
+      if (!isArticleId) throw new BadRequestException('Invalid ID');
+
+      const { deletedCount } = await this.articleModel.deleteOne({
+        _id: articleId,
+      });
+
+      if (deletedCount === 0) throw new BadRequestException('Invalid ID');
+
+      return {
+        message: 'delete article',
+      };
+    } catch (error) {
+      new CustomError(error);
+    }
+  }
 }
