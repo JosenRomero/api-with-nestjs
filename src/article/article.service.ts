@@ -83,4 +83,19 @@ export class ArticleService {
       new CustomError(error);
     }
   }
+
+  async updateArticle(articleId: string, article: CreateArticleDto) {
+    try {
+      const isArticleId = mongoose.Types.ObjectId.isValid(articleId);
+      if (!isArticleId) throw new BadRequestException('Invalid ID');
+
+      await this.articleModel.updateOne({ _id: articleId }, article);
+
+      return {
+        message: 'update article',
+      };
+    } catch (error) {
+      new CustomError(error);
+    }
+  }
 }

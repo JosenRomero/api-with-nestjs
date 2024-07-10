@@ -46,5 +46,7 @@ export class ArticleController {
   }
 
   @Put(':id')
-  updateArticle() {}
+  updateArticle(@Param('id') id: string, @Body() article: CreateArticleDto) {
+    return this.articleService.updateArticle(id, article);
+  }
 }
