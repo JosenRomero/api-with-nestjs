@@ -15,6 +15,7 @@ import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/CreateArticle.dto';
 import { Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
+import { ArticleParametersDto } from './dto/ArticleParameters.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('article')
@@ -22,8 +23,9 @@ export class ArticleController {
   constructor(private articleService: ArticleService) {}
 
   @Get(':id')
-  getArticle(@Param('id') id: string) {
-    return this.articleService.getArticle(id);
+  @UsePipes(new ValidationPipe())
+  getArticle(@Param() params: ArticleParametersDto) {
+    return this.articleService.getArticle(params.id);
   }
 
   @Get()
@@ -41,12 +43,17 @@ export class ArticleController {
   }
 
   @Delete(':id')
-  deleteArticle(@Param('id') id: string) {
-    return this.articleService.deleteArticle(id);
+  @UsePipes(new ValidationPipe())
+  deleteArticle(@Param() params: ArticleParametersDto) {
+    return this.articleService.deleteArticle(params.id);
   }
 
   @Put(':id')
-  updateArticle(@Param('id') id: string, @Body() article: CreateArticleDto) {
-    return this.articleService.updateArticle(id, article);
+  @UsePipes(new ValidationPipe())
+  updateArticle(
+    @Param() params: ArticleParametersDto,
+    @Body() article: CreateArticleDto,
+  ) {
+    return this.articleService.updateArticle(params.id, article);
   }
 }

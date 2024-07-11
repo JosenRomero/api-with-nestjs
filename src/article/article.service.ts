@@ -18,12 +18,9 @@ export class ArticleService {
     @InjectModel(Article.name) private articleModel: Model<Article>,
   ) {}
 
-  async getArticle(id: string) {
+  async getArticle(articleId: string) {
     try {
-      const isArticleId = mongoose.Types.ObjectId.isValid(id);
-      if (!isArticleId) throw new BadRequestException('Invalid ID');
-
-      const article = await this.articleModel.findOne({ _id: id });
+      const article = await this.articleModel.findOne({ _id: articleId });
       if (!article) throw new NotFoundException('Article not found');
 
       return article;
@@ -67,9 +64,6 @@ export class ArticleService {
 
   async deleteArticle(articleId: string) {
     try {
-      const isArticleId = mongoose.Types.ObjectId.isValid(articleId);
-      if (!isArticleId) throw new BadRequestException('Invalid ID');
-
       const { deletedCount } = await this.articleModel.deleteOne({
         _id: articleId,
       });
@@ -86,10 +80,12 @@ export class ArticleService {
 
   async updateArticle(articleId: string, article: CreateArticleDto) {
     try {
-      const isArticleId = mongoose.Types.ObjectId.isValid(articleId);
-      if (!isArticleId) throw new BadRequestException('Invalid ID');
+      const { modifiedCount } = await this.articleModel.updateOne(
+        { _id: articleId },
+        article,
+      );
 
-      await this.articleModel.updateOne({ _id: articleId }, article);
+      if (modifiedCount === 0) throw new BadRequestException('Invalid ID');
 
       return {
         message: 'update article',
