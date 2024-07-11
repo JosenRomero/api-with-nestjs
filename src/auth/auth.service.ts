@@ -37,6 +37,11 @@ export class AuthService {
 
       return {
         message: 'success',
+        user: {
+          id: newUser._id,
+          username: newUser.username,
+          email: newUser.email,
+        },
       };
     } catch (error) {
       if (error.code === 11000) {
@@ -69,6 +74,11 @@ export class AuthService {
 
       return {
         message: 'success',
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+        },
       };
     } catch (error) {
       throw new InternalServerErrorException('Something went wrong');
