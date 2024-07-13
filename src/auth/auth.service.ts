@@ -33,7 +33,11 @@ export class AuthService {
         newUser.email,
       );
 
-      res.cookie('jwt', access_token, { httpOnly: true });
+      res.cookie('jwt', access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+      });
 
       return {
         message: 'success',
@@ -70,7 +74,11 @@ export class AuthService {
 
       const { access_token } = await this.signToken(user.username, user.email);
 
-      res.cookie('jwt', access_token, { httpOnly: true });
+      res.cookie('jwt', access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+      });
 
       return {
         message: 'success',
